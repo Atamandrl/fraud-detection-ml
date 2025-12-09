@@ -1,5 +1,7 @@
 # Kredi Kartı Dolandırıcılığı Tespiti Projesi
 
+Streamlit: https://fraud-detection-ml-lhxdmuxma3evc4ekudfvzr.streamlit.app/
+
 ## 1) Problem Nedir?
 Bizim amacımız, kredi kartı işlemlerinin dolandırıcılık olup olmadığını tahmin etmek.  
 - Veri setinde `Class` sütunu var:  
