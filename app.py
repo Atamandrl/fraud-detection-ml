@@ -11,6 +11,8 @@ data = joblib.load('models/lr_fe_smote_small.joblib')
 model = data['model']
 scaler = data['scaler']
 
+st.write("Model expects:", model.n_features_in_)
+
 # Kullanıcı inputları
 amount_input = st.number_input("Transaction Amount", min_value=0.0, value=0.0, step=0.01)
 time_input = st.number_input("Transaction Time", min_value=0.0, value=0.0, step=0.01)
@@ -33,3 +35,5 @@ if st.button("Predict"):
 
     st.write("Prediction probability:", proba[0])
     st.write("Prediction (class, threshold 0.01):", pred[0])
+
+
