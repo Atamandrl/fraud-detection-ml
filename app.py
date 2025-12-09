@@ -1,42 +1,32 @@
-# app.py
 import streamlit as st
-import pandas as pd
 import numpy as np
 import joblib
+import pandas as pd
+
+# Model ve scaler'ı yükle
+data = joblib.load('lr_fe_smote_small.joblib')
+model = data['model']
+scaler = data['scaler']
 
 st.title("Fraud Detection Demo")
 
-# 1) Modeli ve scaler'ı yükle
-model_scaler = joblib.load("lr_fe_smote_small.joblib")
-model = model_scaler['model']
-scaler = model_scaler['scaler']
+# Kullanıcı inputları
+amount = st.number_input("Transaction Amount", min_value=0.0, value=0.0)
+time = st.number_input("Transaction Time", min_value=0.0, value=0.0)
 
-# 2) Kullanıcı girişleri
-amount = st.number_input("Transaction Amount", value=100.0, min_value=0.0, step=1.0)
-time = st.number_input("Transaction Time", value=50.0, min_value=0.0, step=1.0)
-
-# 3) Girdi DataFrame'i oluştur
+# Inputları dataframe olarak hazırla
 X_input = pd.DataFrame({
     'Time': [time],
     'LogAmount': [np.log1p(amount)],
-    'Amt_by_Time': [amount / (time + 1)],
+    'Amt_by_Time': [amount / (time + 1)]
 })
 
-# 4) Eksik V1-V28 kolonlarını 0 ile doldur
-for col in [f'V{i}' for i in range(1,29)]:
-    X_input[col] = 0
-
-# 5) Scale numeric features
+# Scale
 X_input[['Time','LogAmount','Amt_by_Time']] = scaler.transform(X_input[['Time','LogAmount','Amt_by_Time']])
 
-# 6) Tahmin
+# Tahmin
 proba = model.predict_proba(X_input)[:,1]
+pred_class = (proba >= 0.5).astype(int)
 
-# 7) Sonucu göster
-st.subheader("Prediction")
-st.write(f"Fraud probability: {proba[0]:.6f}")
-
-# Opsiyonel: Class tahmini
-threshold = 0.01  # İstersen değiştir
-pred_class = (proba >= threshold).astype(int)
-st.write(f"Predicted class (threshold {threshold}): {pred_class[0]}")
+st.write("Tahmin (probability):", proba)
+st.write("Tahmin (class, threshold 0.5):", pred_class)
