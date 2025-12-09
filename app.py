@@ -1,0 +1,30 @@
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import joblib
+
+st.title("Fraud Detection Demo")
+
+# Model ve scaler yükle
+data = joblib.load('models/lr_fe_smote_small.joblib')
+model = data['model']
+scaler = data['scaler']
+
+# Kullanıcı inputları
+amount_input = st.number_input("Transaction Amount", min_value=0.0, value=0.0, step=0.01)
+time_input = st.number_input("Transaction Time", min_value=0.0, value=0.0, step=0.01)
+
+if st.button("Predict"):
+    X_input = pd.DataFrame({
+        'Time': [time_input],
+        'LogAmount': [np.log1p(amount_input)],
+        'Amt_by_Time': [amount_input / (time_input + 1)]
+    })
+
+    X_input[['Time','LogAmount','Amt_by_Time']] = scaler.transform(X_input[['Time','LogAmount','Amt_by_Time']])
+    proba = model.predict_proba(X_input)[:,1]
+    pred = (proba > 0.01).astype(int)
+
+    st.write("Prediction probability:", proba[0])
+    st.write("Prediction (class, threshold 0.01):", pred[0])
